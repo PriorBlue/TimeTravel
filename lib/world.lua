@@ -33,7 +33,7 @@ function World:update(dt)
 	end
 	if timetravel.currentMode == 8 then
 		if timetravel.levelMap.editor.mousepressed == "l" then -- TODO quick fix from below, part 2
-			timetravel.currentMap:changeTile(love.mouse.getX(), love.mouse.getY())
+			timetravel.currentMap:changeTile(love.mouse.getX()*0.5, love.mouse.getY()*0.5)
 		end
 	end
 	
@@ -55,16 +55,31 @@ function World:draw()
 	love.graphics.setColor(255, 255, 255)
 	if timetravel.currentMode == 8 then
 		love.graphics.print("EDIT MODE")
+		--love.graphics.draw(
+		local tempcolor = {love.graphics.getColor()}
+		love.graphics.setColor(0,0,50)
+		love.graphics.rectangle("fill",love.mouse.getX()*0.5+16-3, love.mouse.getY()*0.5+16-3, 32+6, 32+6)
+		love.graphics.setColor(tempcolor)
+		local texturePos = timetravel.levelMap.editor.currentTile
+		timetravel.currentMap.quad:setViewport((texturePos%16)*timetravel.levelMap.textureSizeX,(texturePos-(texturePos%16))/16*timetravel.levelMap.textureSizeY,
+								timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY)
+		love.graphics.draw(timetravel.levelMap.editor.currentTileBatch, love.mouse.getX()*0.5+16, love.mouse.getY()*0.5+16)
 	end
 	
 	local f = 7
 	local r = 127 + math.sin((love.timer.getTime() * 0.1) * 5 * f + 90) * 127
 	local g = 127 + math.sin((love.timer.getTime() * 0.1) * 5 * f + 180) * 127
 	local b = 127 + math.sin((love.timer.getTime() * 0.1) * 5 * f + 270) * 127
+	
+	if YEAR ~= 2015 then
+		r = 255
+		g = 255
+		b = 255
+	end
 
 	love.graphics.setFont(FONT_MENU)
 	love.graphics.setColor(0, 0, 0)
-	love.graphics.print("2015", 280 + 2, 8 + 2)
+	love.graphics.print(YEAR, 280 + 2, 8 + 2)
 	love.graphics.setColor(r, g, b)
-	love.graphics.print("2015", 280, 8)
+	love.graphics.print(YEAR, 280, 8)
 end

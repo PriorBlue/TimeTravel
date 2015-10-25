@@ -41,9 +41,12 @@ function love.load()
 	objectManager:load("data/objects_present.lua")
 	
 	gState = "menu"
+	
+	YEAR = 2015
 end
 
 function love.draw()
+
 	love.postshader.setBuffer("render")
 
 	if gState == "menu" then
@@ -57,6 +60,11 @@ function love.draw()
 	
 	love.graphics.origin()
 	love.postshader.addEffect("scanlines")
+	
+	if YEAR ~= 2015 then
+		love.postshader.addEffect("monochrom")
+	end
+	
 	love.postshader.draw()
 end
 
@@ -67,24 +75,31 @@ function love.update(dt)
 		gCredits:update(dt)
 	else
 		gWorld:update(dt)
+
+		if timetravel.currentMode == 8 then
+			if timetravel.levelMap.editor.leftmousepressed then
+				timetravel.currentMap:changeTile(love.mouse.getX(), love.mouse.getY())
+			end
+		end
 	end
 end
 
 function love.mousepressed(x, y, button)
 	if timetravel.currentMode == 8 then
-		timetravel.levelMap.editor.mousepressed = button -- TODO quick fix for now
 		if button == "l" then
-			--timetravel.currentMap:changeTile(x, y)
+			timetravel.levelMap.editor.leftmousepressed = true
 		elseif button == "r" then
 			-- change to object placement mode
-		elseif button == "wu" then
+		elseif button == "m" then
+			-- grab tile
+		end
+		
+		if button == "wu" then
 			-- next tile
 			timetravel.currentMap:selectNextTile()
 		elseif button == "wd" then
 			-- previous tile
 			timetravel.currentMap:selectPrevTile()
-		elseif button == "m" then
-			-- grab tile
 		end
 	end
 	
@@ -98,7 +113,7 @@ end
 function love.mousereleased(x, y, button)
 	if timetravel.currentMode == 8 then
 		if button == "l" then
-			timetravel.levelMap.editor.mousepressed = ""
+			timetravel.levelMap.editor.leftmousepressed = false
 		end
 	end
 end

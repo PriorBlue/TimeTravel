@@ -2,13 +2,15 @@ timetravel.levelMap = {}
 timetravel.levelMap.textureSizeX, timetravel.levelMap.textureSizeY = 32, 32
 timetravel.levelMap.editor = {}
 timetravel.levelMap.editor.currentTile = 0
-timetravel.levelMap.editor.maxTileNumber = 25
+timetravel.levelMap.editor.maxTileNumber = 51
 timetravel.levelMap.editor.lastKeyPress = 0
-timetravel.levelMap.editor.mousepressed = ""
+timetravel.levelMap.editor.leftmousepressed = false
+timetravel.levelMap.editor.currentTileImage = {}
 
 class "LevelMap" {
 	currentMapString = "";
 	defaultMapString = "";
+	levelName = "";
 	mapSizeX, mapSizeY = 0, 0;
 	mapImage = nil;
 	mapBatch = nil;
@@ -16,23 +18,18 @@ class "LevelMap" {
 }
 
 local function getCharFromNumber(number)
-	return string.char(number+97)
+	if number<=25 then
+		return string.char(number+97)
+	else
+		return string.char(number+65-25)
+	end
 end
 
-local function getTileFromChar(char)
-	--print("got string"..char)
-	if type(char) == "number" then--char:len() > 1 then -- we have a number
-		return char%16,(char-(char%16))/16
+function LevelMap:getTileFromChar(char)
+	if string.byte(char)>96 then
+		return string.byte(char) - 96
 	else
-		if char == "a" then
-			return 0,0
-		elseif char == "b" then
-			return 0,1
-		elseif char == "c" then
-			return 0,2
-		else
-			return 1,0
-		end
+		return string.byte(char) - 64
 	end
 end
 
@@ -42,11 +39,11 @@ function LevelMap:__init(mapSizeX, mapSizeY, mapString)
 	self.mapBatch = love.graphics.newSpriteBatch(self.mapImage,self.mapSizeX*self.mapSizeY)
 	self.quad = love.graphics.newQuad(0,0,timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY,
 										self.mapImage:getWidth(), self.mapImage:getHeight())
+	self.levelName = ""..love.math.random()
 	if (mapString == nil) or not(string.len(mapString)==mapSizeX*mapSizeY) then -- map string has the wrong size or does not exist
 		if not(mapString == nil) and not(string.len(mapString)==mapSizeX*mapSizeY) then
 			print("WARNING: map string has the wrong length ("..string.len(mapString).."), should be "..mapSizeX*mapSizeY)
 		end
-		-- TODO generate custom map string
 		local tempMapString = {}
 		for i=0,mapSizeX*mapSizeY do
 			tempMapString[i] = getCharFromNumber(love.math.random(0,4)) --TODO replace 4 with maximum number of tiles
@@ -57,6 +54,10 @@ function LevelMap:__init(mapSizeX, mapSizeY, mapString)
 	self.defaultMapString = mapString
 	self.currentMapString = mapString
 	LevelMap:load(mapString, mapSizeX, mapSizeY, self.quad, self.mapBatch)
+		timetravel.levelMap.editor.currentTileImage = love.graphics.newImage("gfx/tileset.png")
+	timetravel.levelMap.editor.currentTileBatch = love.graphics.newSpriteBatch(timetravel.levelMap.editor.currentTileImage,
+													timetravel.levelMap.editor.maxTileNumber+1)
+	LevelMap:recalculateEditorTileImage()
 end
 
 -- load map from given string
@@ -64,10 +65,8 @@ function LevelMap:load(mapString, sizeX, sizeY, loadQuad, loadBatch)
 	loadBatch:clear()
 	for i=0,sizeX-1 do
 		for j=0,sizeY-1 do
-			--print("drawing map from string")
-			local textureX, textureY = getTileFromChar(mapString:sub(1+j+i*sizeX, 1+j+i*sizeX))
-			--print(textureX..", "..textureY)
-			loadQuad:setViewport(textureX*timetravel.levelMap.textureSizeX,textureY*timetravel.levelMap.textureSizeY,
+			local texturePos = self:getTileFromChar(mapString:sub(1+i+j*sizeX, 1+i+j*sizeX))
+			loadQuad:setViewport((texturePos%16)*timetravel.levelMap.textureSizeX,(texturePos-(texturePos%16))/16*timetravel.levelMap.textureSizeY,
 								timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY)
 			loadBatch:add(loadQuad,i*timetravel.levelMap.textureSizeX,j*timetravel.levelMap.textureSizeY)
 		end
@@ -83,12 +82,10 @@ function LevelMap:draw()
 end
 
 function LevelMap:changeTile(posX, posY) -- position is given in pixels
-	--print("button pressed at "..posX..", "..posY)
 	local actualX, actualY = (posX-(posX%timetravel.levelMap.textureSizeX))/timetravel.levelMap.textureSizeX,
 							 (posY-(posY%timetravel.levelMap.textureSizeY))/timetravel.levelMap.textureSizeY
-	print("placing tile at "..actualX..", "..actualY)
 	self.currentMapString = util.replaceChar(self.currentMapString,getCharFromNumber(timetravel.levelMap.editor.currentTile),
-												1+actualY+actualX*self.mapSizeY)
+												1+actualX+actualY*self.mapSizeY)
 	self:reload()
 end
 
@@ -102,7 +99,8 @@ function LevelMap:selectNextTile()
 	else
 		timetravel.levelMap.editor.currentTile = 0
 	end
-	print("selected tile "..timetravel.levelMap.editor.currentTile)
+	--print("selected tile "..timetravel.levelMap.editor.currentTile)
+	self:recalculateEditorTileImage()
 end
 
 function LevelMap:selectPrevTile()
@@ -111,5 +109,29 @@ function LevelMap:selectPrevTile()
 	else
 		timetravel.levelMap.editor.currentTile = timetravel.levelMap.editor.maxTileNumber
 	end
-	print("selected tile "..timetravel.levelMap.editor.currentTile)
+	--print("selected tile "..timetravel.levelMap.editor.currentTile)
+	self:recalculateEditorTileImage()
+end
+
+function LevelMap:resetMap()
+	self.currentMapString = self.defaultMapString
+	self:reload()
+end
+
+function LevelMap:saveMap()
+	self.defaultMapString = self.currentMapString
+end
+
+function LevelMap:getMapInfo()
+	return table.concat{self.levelName,",\n",self.defaultMapString,",\n","OBJECTS:"} -- TODO
+end
+
+function LevelMap:recalculateEditorTileImage()
+	timetravel.levelMap.editor.currentTileBatch:clear()
+	local tempquad = love.graphics.newQuad(0,0,timetravel.levelMap.textureSizeX, timetravel.levelMap.textureSizeY,
+					timetravel.levelMap.editor.currentTileImage:getWidth(), timetravel.levelMap.editor.currentTileImage:getHeight())
+	tempquad:setViewport(((timetravel.levelMap.editor.currentTile+1)%16)*timetravel.levelMap.textureSizeX,
+							((timetravel.levelMap.editor.currentTile+1)-((timetravel.levelMap.editor.currentTile+1))%16)/16*timetravel.levelMap.textureSizeY,
+								timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY)
+	timetravel.levelMap.editor.currentTileBatch:add(tempquad,0,0)
 end
