@@ -1,8 +1,12 @@
+timetravel = {}
+
+require('lib/levelMap')
 require("lib/object_manager")
 require("lib/quests")
 require("lib/player")
 
 function love.load()
+	timetravel.levelMap:__init(4, 4, "blaclacalababbbb")
 	player = CreatePlayer(64, 128, 16, 32)
 	objectManager = CreateObjectManager()
 	objectManager:add(16, 16, 32, 32, "AddPart")
@@ -15,6 +19,7 @@ end
 
 function love.draw()
 	-- WORLD
+	timetravel.levelMap:draw()
 	objectManager:draw()
 	player:draw()
 	
