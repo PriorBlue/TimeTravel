@@ -1,14 +1,14 @@
 timetravel = {}
-require('levelMap')
+require('lib/levelMap')
 require("lib/player")
 
 function love.load()
-	timetravel.levelMap:__init(64, 64, nil)--LevelMap:__init()
+	timetravel.levelMap:__init(4, 4, nil) -- "blaclacalababbbb")
 	player = CreatePlayer(64, 64)
 end
 
 function love.draw()
-	timetravel.levelMap:draw()--LevelMap:draw()
+	timetravel.levelMap:draw()
 	love.graphics.print("hello world")
 	player:draw()
 end
