@@ -66,7 +66,8 @@ function love.update(dt)
 		player:moveDown(dt)
 	end
 	if timetravel.currentMode == 8 then
-		if timetravel.levelMap.editor.mousepressed == "l" then -- TODO quick fix from below, part 2
+		if timetravel.levelMap.editor.leftmousepressed then
+			print("button pressed")
 			timetravel.currentMap:changeTile(love.mouse.getX(), love.mouse.getY())
 		end
 	end
@@ -77,19 +78,20 @@ end
 
 function love.mousepressed(x, y, button)
 	if timetravel.currentMode == 8 then
-		timetravel.levelMap.editor.mousepressed = button -- TODO quick fix for now
 		if button == "l" then
-			--timetravel.currentMap:changeTile(x, y)
+			timetravel.levelMap.editor.leftmousepressed = true
 		elseif button == "r" then
 			-- change to object placement mode
-		elseif button == "wu" then
+		elseif button == "m" then
+			-- grab tile
+		end
+		
+		if button == "wu" then
 			-- next tile
 			timetravel.currentMap:selectNextTile()
 		elseif button == "wd" then
 			-- previous tile
 			timetravel.currentMap:selectPrevTile()
-		elseif button == "m" then
-			-- grab tile
 		end
 	end
 end
@@ -97,7 +99,7 @@ end
 function love.mousereleased(x, y, button)
 	if timetravel.currentMode == 8 then
 		if button == "l" then
-			timetravel.levelMap.editor.mousepressed = ""
+			timetravel.levelMap.editor.leftmousepressed = false
 		end
 	end
 end
