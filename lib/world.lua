@@ -29,11 +29,15 @@ function World:update(dt)
 	if love.keyboard.isDown("w") then
 		player:moveUp(dt)
 	elseif love.keyboard.isDown("s") then
-		player:moveDown(dt)
+		if love.keyboard.isDown("lctrl") then
+			timetravel.fileSystem.saveMap(timetravel.currentMap:getMapInfo())
+		else
+			player:moveDown(dt)
+		end
 	end
 	if timetravel.currentMode == 8 then
-		if timetravel.levelMap.editor.mousepressed == "l" then -- TODO quick fix from below, part 2
-			timetravel.currentMap:changeTile(love.mouse.getX()*0.5, love.mouse.getY()*0.5)
+		if timetravel.levelMap.editor.leftmousepressed then
+			timetravel.currentMap:changeTile(love.mouse.getX(), love.mouse.getY())
 		end
 	end
 	
