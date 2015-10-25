@@ -6,14 +6,16 @@ require("lib/quests")
 require("lib/player")
 
 function love.load()
+	IMAGE_PART = love.graphics.newImage("gfx/part.png")
+	IMAGE_TIMEMACHINE = love.graphics.newImage("gfx/timemachine.png")
+
 	timetravel.levelMap:__init(4, 4, "blaclacalababbbb")
 	player = CreatePlayer(64, 128, 16, 32)
 	objectManager = CreateObjectManager()
-	objectManager:add(16, 16, 32, 32, "AddPart")
-	objectManager:add(48, 64, 16, 16, "AddPart", true)
+	objectManager:add(IMAGE_TIMEMACHINE, 128, 128, "GoToThePast")
 	
 	for i=0,15 do
-		objectManager:add(math.random(0,700), math.random(0,500), 16, 16, "AddPart", true)
+		objectManager:add(IMAGE_PART, math.random(0, 700), math.random(0, 500), "AddPart", true)
 	end
 end
 

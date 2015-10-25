@@ -5,17 +5,18 @@ CreateObjectManager = function()
 
 	obj.draw = function(self)
 		for k, o in pairs(self.objects) do
-			love.graphics.rectangle("fill", o.x, o.y, o.width, o.height)
+			love.graphics.draw(o.img, o.x, o.y)
 		end
 	end
 
-	obj.add = function(self, x, y, width, height, func, del)
+	obj.add = function(self, img, x, y, func, del)
 		local o = {}
 
+		o.img = img
 		o.x = x
 		o.y = y
-		o.width = width
-		o.height = height
+		o.width = img:getWidth()
+		o.height = img:getHeight()
 		o.func = func
 		o.del = del
 
