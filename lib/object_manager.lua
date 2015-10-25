@@ -6,7 +6,9 @@ CreateObjectManager = function()
 	obj.load = function(self, path)
 		local obj = dofile(love.filesystem.getRealDirectory("") .. "/" .. path)
 		
-		print(obj)
+		for k, o in pairs(obj) do
+			self:add(_G[o.img], o.x, o.y, o.func, o.delete)
+		end
 	end
 	
 	obj.draw = function(self)
