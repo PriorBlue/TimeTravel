@@ -36,7 +36,7 @@ function love.load()
 	timetravel.currentMap = LevelMap:new(32, 32, nil)
 	player = CreatePlayer(IMAGE_PLAYER, 64, 128)
 	objectManager = CreateObjectManager()
-	objectManager:add(IMAGE_TIMEMACHINE, 128, 128, "GoToThePast")
+	objectManager:add(IMAGE_TIMEMACHINE, 128, 128, "GoToThePast", false, 2)
 	
 	objectManager:load("data/objects_present.lua")
 	

@@ -46,7 +46,7 @@ function LevelMap:__init(mapSizeX, mapSizeY, mapString)
 		end
 		local tempMapString = {}
 		for i=0,mapSizeX*mapSizeY do
-			tempMapString[i] = getCharFromNumber(love.math.random(0,4)) --TODO replace 4 with maximum number of tiles
+			tempMapString[i] = getCharFromNumber(1) --TODO replace 4 with maximum number of tiles
 		end
 		mapString = table.concat(tempMapString)
 		--print(mapString)

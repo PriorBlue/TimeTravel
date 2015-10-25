@@ -13,11 +13,11 @@ CreateObjectManager = function()
 	
 	obj.draw = function(self)
 		for k, o in pairs(self.objects) do
-			love.graphics.draw(o.img, o.x, o.y)
+			love.graphics.draw(o.img, o.x, o.y, 0, o.scale)
 		end
 	end
 
-	obj.add = function(self, img, x, y, func, del)
+	obj.add = function(self, img, x, y, func, del, scale)
 		local o = {}
 
 		o.img = img
@@ -27,6 +27,7 @@ CreateObjectManager = function()
 		o.height = img:getHeight()
 		o.func = func
 		o.del = del
+		o.scale = scale
 
 		table.insert(self.objects, o)
 	end
