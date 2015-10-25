@@ -3,6 +3,12 @@ CreateObjectManager = function()
 
 	obj.objects = {}
 
+	obj.load = function(self, path)
+		local obj = dofile(love.filesystem.getRealDirectory("") .. "/" .. path)
+		
+		print(obj)
+	end
+	
 	obj.draw = function(self)
 		for k, o in pairs(self.objects) do
 			love.graphics.draw(o.img, o.x, o.y)

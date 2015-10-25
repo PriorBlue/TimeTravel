@@ -6,17 +6,20 @@ require("lib/quests")
 require("lib/player")
 
 function love.load()
+	IMAGE_PLAYER = love.graphics.newImage("gfx/player.png")
 	IMAGE_PART = love.graphics.newImage("gfx/part.png")
 	IMAGE_TIMEMACHINE = love.graphics.newImage("gfx/timemachine.png")
 
 	timetravel.levelMap:__init(4, 4, "blaclacalababbbb")
-	player = CreatePlayer(64, 128, 16, 32)
+	player = CreatePlayer(IMAGE_PLAYER, 64, 128)
 	objectManager = CreateObjectManager()
 	objectManager:add(IMAGE_TIMEMACHINE, 128, 128, "GoToThePast")
-	
+
 	for i=0,15 do
 		objectManager:add(IMAGE_PART, math.random(0, 700), math.random(0, 500), "AddPart", true)
 	end
+	
+	--objectManager:load("data/objects_present.lua")
 end
 
 function love.draw()
@@ -42,5 +45,6 @@ function love.update(dt)
 		player:moveDown(dt)
 	end
 	
+	player:update(dt)
 	objectManager:checkCollision(player)
 end
