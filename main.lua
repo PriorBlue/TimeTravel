@@ -35,6 +35,15 @@ function love.draw()
 	love.graphics.print(GAME_PARTS, 256, 16)
 	if timetravel.currentMode == 8 then
 		love.graphics.print("EDIT MODE")
+		--love.graphics.draw(
+		local tempcolor = {love.graphics.getColor()}
+		love.graphics.setColor(0,0,50)
+		love.graphics.rectangle("fill",love.mouse.getX()+16-3, love.mouse.getY()+16-3, 32+6, 32+6)
+		love.graphics.setColor(tempcolor)
+		local texturePos = timetravel.levelMap.editor.currentTile
+		timetravel.currentMap.quad:setViewport((texturePos%16)*timetravel.levelMap.textureSizeX,(texturePos-(texturePos%16))/16*timetravel.levelMap.textureSizeY,
+								timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY)
+		love.graphics.draw(timetravel.levelMap.editor.currentTileBatch, love.mouse.getX()+16, love.mouse.getY()+16)
 	--else
 		--love.graphics.print("hello world")
 	end
@@ -67,7 +76,6 @@ function love.update(dt)
 	end
 	if timetravel.currentMode == 8 then
 		if timetravel.levelMap.editor.leftmousepressed then
-			print("button pressed")
 			timetravel.currentMap:changeTile(love.mouse.getX(), love.mouse.getY())
 		end
 	end
