@@ -38,7 +38,7 @@ function love.load()
 	objectManager = CreateObjectManager()
 	objectManager:add(IMAGE_TIMEMACHINE, 128, 128, "GoToThePast")
 	
-	objectManager:load("data/objects_present.lua")
+	--objectManager:load("data/objects_present.lua")
 	
 	gState = "menu"
 	

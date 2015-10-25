@@ -27,19 +27,23 @@ end
 
 function LevelMap:getTileFromChar(char)
 	if string.byte(char)>96 then
-		return string.byte(char) - 96
+		return string.byte(char) - 97
 	else
-		return string.byte(char) - 64
+		return string.byte(char) - 65
 	end
 end
 
-function LevelMap:__init(mapSizeX, mapSizeY, mapString)
+function LevelMap:__init(mapSizeX, mapSizeY, mapString, levelName)
 	self.mapSizeX, self.mapSizeY = mapSizeX, mapSizeY
 	self.mapImage = love.graphics.newImage("gfx/tileset.png")
 	self.mapBatch = love.graphics.newSpriteBatch(self.mapImage,self.mapSizeX*self.mapSizeY)
 	self.quad = love.graphics.newQuad(0,0,timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY,
 										self.mapImage:getWidth(), self.mapImage:getHeight())
-	self.levelName = ""..love.math.random()
+	if levelName == nil then
+		self.levelName = ""..love.math.random()
+	else
+		self.levelName = levelName
+	end
 	if (mapString == nil) or not(string.len(mapString)==mapSizeX*mapSizeY) then -- map string has the wrong size or does not exist
 		if not(mapString == nil) and not(string.len(mapString)==mapSizeX*mapSizeY) then
 			print("WARNING: map string has the wrong length ("..string.len(mapString).."), should be "..mapSizeX*mapSizeY)
@@ -81,7 +85,8 @@ function LevelMap:draw()
 	love.graphics.draw(self.mapBatch)
 end
 
-function LevelMap:changeTile(posX, posY) -- position is given in pixels
+function LevelMap:changeTile(tposX, tposY) -- position is given in pixels
+	posX, posY = tposX*0.5, tposY*0.5
 	local actualX, actualY = (posX-(posX%timetravel.levelMap.textureSizeX))/timetravel.levelMap.textureSizeX,
 							 (posY-(posY%timetravel.levelMap.textureSizeY))/timetravel.levelMap.textureSizeY
 	self.currentMapString = util.replaceChar(self.currentMapString,getCharFromNumber(timetravel.levelMap.editor.currentTile),
@@ -123,15 +128,15 @@ function LevelMap:saveMap()
 end
 
 function LevelMap:getMapInfo()
-	return table.concat{self.levelName,",\n",self.defaultMapString,",\n","OBJECTS:"} -- TODO
+	return {levelName = self.levelName,mapString = self.defaultMapString, mapSizeX = self.mapSizeX, mapSizeY = self.mapSizeY, objects = "TODO"} --TODO
 end
 
 function LevelMap:recalculateEditorTileImage()
 	timetravel.levelMap.editor.currentTileBatch:clear()
 	local tempquad = love.graphics.newQuad(0,0,timetravel.levelMap.textureSizeX, timetravel.levelMap.textureSizeY,
 					timetravel.levelMap.editor.currentTileImage:getWidth(), timetravel.levelMap.editor.currentTileImage:getHeight())
-	tempquad:setViewport(((timetravel.levelMap.editor.currentTile+1)%16)*timetravel.levelMap.textureSizeX,
-							((timetravel.levelMap.editor.currentTile+1)-((timetravel.levelMap.editor.currentTile+1))%16)/16*timetravel.levelMap.textureSizeY,
+	tempquad:setViewport(((timetravel.levelMap.editor.currentTile+0)%16)*timetravel.levelMap.textureSizeX,
+							((timetravel.levelMap.editor.currentTile+0)-((timetravel.levelMap.editor.currentTile+0))%16)/16*timetravel.levelMap.textureSizeY,
 								timetravel.levelMap.textureSizeX,timetravel.levelMap.textureSizeY)
 	timetravel.levelMap.editor.currentTileBatch:add(tempquad,0,0)
 end
