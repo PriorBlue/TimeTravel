@@ -1,4 +1,7 @@
 return {
-	{"IMAGE_PART", 16, 16, "AddPart", true},
-	{"IMAGE_PART", 64, 128, "AddPart", true},
+	{img = "IMAGE_PART", x = 16, y = 16, func = "AddPart", delete = true},
+	{img = "IMAGE_PART", x = 64, y = 64, func = "AddPart", delete = true},
+	{img = "IMAGE_PART", x = 256, y = 256, func = "AddPart", delete = true},
+	{img = "IMAGE_PART", x = 256, y = 128, func = "AddPart", delete = true},
+	{img = "IMAGE_PART", x = 128, y = 256, func = "AddPart", delete = true},
 }

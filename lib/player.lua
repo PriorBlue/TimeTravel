@@ -14,14 +14,14 @@ CreatePlayer = function(img, x, y, v)
 	
 	obj.update = function(self, dt)
 		if self.isMoving then
-			self.timer = self.timer + 1
+			self.timer = self.timer + dt * 10
 		end
 		
 		self.isMoving = false
 	end
 	
 	obj.draw = function(self)
-		self.quad:setViewport((math.floor(self.timer / 10) % 4) * self.width, self.direction * self.height, self.width, self.height)
+		self.quad:setViewport((math.floor(self.timer) % 4) * self.width, self.direction * self.height, self.width, self.height)
 		love.graphics.draw(self.img, obj.quad, self.x, self.y)
 	end
 	
@@ -33,19 +33,19 @@ CreatePlayer = function(img, x, y, v)
 	
 	obj.moveRight = function(self, dt)
 		self.x = self.x + dt * 100
-		self.direction = 0
+		self.direction = 2
 		self.isMoving = true
 	end
 	
 	obj.moveUp = function(self, dt)
 		self.y = self.y - dt * 100
-		self.direction = 2
+		self.direction = 3
 		self.isMoving = true
 	end
 	
 	obj.moveDown = function(self, dt)
 		self.y = self.y + dt * 100
-		self.direction = 3
+		self.direction = 0
 		self.isMoving = true
 	end
 	

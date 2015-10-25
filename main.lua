@@ -6,73 +6,68 @@ require('lib/levelMap')
 require("lib/object_manager")
 require("lib/quests")
 require("lib/player")
+require('lib/world')
+require('lib/menu')
+require('lib/credits')
+require('lib/postshader')
+
 timetravel.currentMode = 2 -- 2=in game, 8=edit mode
 
 function love.load()
+	love.graphics.setDefaultFilter("nearest", "nearest", 0)
+	
 	IMAGE_PLAYER = love.graphics.newImage("gfx/player.png")
 	IMAGE_PART = love.graphics.newImage("gfx/part.png")
 	IMAGE_TIMEMACHINE = love.graphics.newImage("gfx/timemachine.png")
+	IMAGE_SCORE = love.graphics.newImage("gfx/score.png")
+	
+	FONT_MENU = love.graphics.newFont("font/font.ttf", 48)
+	FONT_GAME = love.graphics.newFont("font/font.ttf", 16)
+	love.graphics.setFont(FONT_MENU)
 
+	if gWorld ~= nil then
+		gWorld:clearAll()
+	end
+
+	gWorld = World:new(gScreenWidth, gScreenHeight)
+	gMenu = Menu:new(gScreenWidth, gScreenHeight)
+	gCredits = Credits:new(gScreenWidth, gScreenHeight)
+	
 	timetravel.currentMap = LevelMap:new(32, 32, nil)
 	player = CreatePlayer(IMAGE_PLAYER, 64, 128)
 	objectManager = CreateObjectManager()
 	objectManager:add(IMAGE_TIMEMACHINE, 128, 128, "GoToThePast")
 	
-	for i=0,15 do
-		objectManager:add(IMAGE_PART, math.random(0, 700), math.random(0, 500), "AddPart", true)
-	end
+	objectManager:load("data/objects_present.lua")
 	
-	--objectManager:load("data/objects_present.lua")
+	gState = "menu"
 end
 
 function love.draw()
-	-- WORLD
-	timetravel.currentMap:draw()
-	objectManager:draw()
-	player:draw()
-	
-	-- HUD
-	love.graphics.print(GAME_PARTS, 256, 16)
-	if timetravel.currentMode == 8 then
-		love.graphics.print("EDIT MODE")
-	--else
-		--love.graphics.print("hello world")
+	love.postshader.setBuffer("render")
+
+	if gState == "menu" then
+		gMenu:draw()
+	elseif gState == "credits" then
+		gCredits:draw()
+	else
+		love.graphics.scale( 2, 2 )
+		gWorld:draw()
 	end
+	
+	love.graphics.origin()
+	love.postshader.addEffect("scanlines")
+	love.postshader.draw()
 end
 
 function love.update(dt)
-	if love.keyboard.isDown("a") then
-		player:moveLeft(dt)
-	elseif love.keyboard.isDown("d") then
-		player:moveRight(dt)
-	elseif love.keyboard.isDown("e") then --TODO only allow this in the main menu
-		-- switch between editor mode and game mode
-		if timetravel.levelMap.editor.lastKeyPress < os.time() then -- todo remove this once the update frequency is checked somewhere else
-			if timetravel.currentMode == 2 then
-				print("switching to edit mode")
-				timetravel.currentMode = 8
-			elseif timetravel.currentMode == 8 then
-				timetravel.currentMode = 2 
-			end
-			timetravel.levelMap.editor.lastKeyPress = os.time()
-		end
-	elseif love.keyboard.isDown("x") then -- export map string, only on console for now
-		timetravel.currentMap:printMapString()
+	if gState == "menu" then
+		gMenu:update(dt)
+	elseif gState == "credits" then
+		gCredits:update(dt)
+	else
+		gWorld:update(dt)
 	end
-	
-	if love.keyboard.isDown("w") then
-		player:moveUp(dt)
-	elseif love.keyboard.isDown("s") then
-		player:moveDown(dt)
-	end
-	if timetravel.currentMode == 8 then
-		if timetravel.levelMap.editor.mousepressed == "l" then -- TODO quick fix from below, part 2
-			timetravel.currentMap:changeTile(love.mouse.getX(), love.mouse.getY())
-		end
-	end
-	
-	player:update(dt)
-	objectManager:checkCollision(player)
 end
 
 function love.mousepressed(x, y, button)
@@ -92,6 +87,12 @@ function love.mousepressed(x, y, button)
 			-- grab tile
 		end
 	end
+	
+	if gState == "menu" then
+		gMenu:mouseHit(x, y, button)
+	elseif gState == "credits" then
+		gCredits:mouseHit(x, y, button)
+	end
 end
 
 function love.mousereleased(x, y, button)
@@ -99,5 +100,19 @@ function love.mousereleased(x, y, button)
 		if button == "l" then
 			timetravel.levelMap.editor.mousepressed = ""
 		end
+	end
+end
+
+function love.mousemoved(x, y)
+	if gState == "menu" then
+		gMenu:mouseMoved(x, y)
+	elseif gState == "credits" then
+		gCredits:mouseMoved(x, y)
+	end
+end
+
+function love.keyreleased(key)
+	if key == 'escape' then
+		gState = "menu"
 	end
 end

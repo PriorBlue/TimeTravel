@@ -6,6 +6,7 @@ end
 
 function GoToThePast(self)
 	if GAME_PARTS >= 5 then
-		love.event.quit()
+		GAME_PARTS = 0
+		objectManager:load("data/objects_present.lua")
 	end
 end
